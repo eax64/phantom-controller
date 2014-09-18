@@ -5,7 +5,7 @@
 ## Login   <soules_k@epitech.net>
 ## 
 ## Started on  Thu Sep 18 00:55:22 2014 eax
-## Last update Thu Sep 18 01:57:14 2014 eax
+## Last update Thu Sep 18 02:15:56 2014 eax
 ##
 
 CC	=	gcc
@@ -16,7 +16,8 @@ LDFLAGS	=	-lpthread -L/usr/local/lib -lusb-1.0
 SRC	=	src/usb.c \
 		src/usb-transfer.c \
 		src/main.c \
-		src/pc_parse.c
+		src/pc_parse.c \
+		src/uinput.c
 
 OBJ	=	$(SRC:.c=.o)
 

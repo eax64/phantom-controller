@@ -5,7 +5,7 @@
 ** Login   <soules_k@epitech.net>
 ** 
 ** Started on  Thu Sep 18 01:17:17 2014 eax
-** Last update Thu Sep 18 01:33:47 2014 eax
+** Last update Thu Sep 18 02:17:58 2014 eax
 */
 
 #include <stdio.h>
@@ -28,4 +28,18 @@ void	print_fields(t_phantom_field *fields)
     printf("  %4d  ->  %4d\n", fields[i].id, fields[i].val);
   puts("================");
   fflush(stdout);
+}
+
+short		id_to_val(t_phantom_field *f, short id, size_t size)
+{
+  size_t	i;
+
+  i = 0;
+  while (i < size)
+    {
+      if (f[i].id == id)
+	return (f[i].val);
+      i++;
+    }
+  return (0);
 }

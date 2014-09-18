@@ -5,9 +5,10 @@
 ** Login   <soules_k@epitech.net>
 ** 
 ** Started on  Thu Sep 18 01:04:02 2014 eax
-** Last update Thu Sep 18 02:11:22 2014 eax
+** Last update Thu Sep 18 02:42:14 2014 eax
 */
 
+#include <signal.h>
 #include <pthread.h>
 #include <string.h>
 #include <stdlib.h>
@@ -23,6 +24,12 @@ static unsigned char g_last_raw[MAX_USB_READ];
 static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
 static int g_stop_retreiving = 1;
 
+static void handle_sig(int sig)
+{
+  (void) sig;
+  pc_stop_retrieving();
+}
+
 int	pc_get_data(t_phantom_field *data_out)
 {
   if (g_stop_retreiving == 1)
@@ -35,6 +42,12 @@ int	pc_get_data(t_phantom_field *data_out)
       while (g_stop_retreiving != 0)
 	usleep(1000);
     }
+  else if (g_stop_retreiving == -2)
+    {
+      fprintf(stderr, "An error occured in the usb thread.\n");
+      return (-1);
+    }
+
 
   pthread_mutex_lock(&g_lock);
   raw_to_phantom_field(g_last_raw, data_out);
@@ -45,6 +58,7 @@ int	pc_get_data(t_phantom_field *data_out)
 int	pc_stop_retrieving()
 {
   g_stop_retreiving = 1;
+  fprintf(stderr, "Stopping...\n");
   return (0);
 }
 
@@ -64,12 +78,14 @@ void	*_pc_start_retrieving(void *data)
 	  if (e)
 	    {
 	      fprintf(stderr, "Oups %s:%d: %s\n", __FILE__, __LINE__, libusb_strerror(e));
+	      g_stop_retreiving = -2;
 	      return ((void *)-1);
 	    }
 	  e = libusb_bulk_transfer(devh, 0x82, (unsigned char*)tmp, sizeof(tmp), &size, 1000);
 	  if (e)
 	    {
 	      fprintf(stderr, "Oups %s:%d: %s\n", __FILE__, __LINE__, libusb_strerror(e));
+	      g_stop_retreiving = -2;
 	      return ((void *)-1);
 	    }
 	}
@@ -77,6 +93,7 @@ void	*_pc_start_retrieving(void *data)
       if (size < 72)
 	{
 	  fprintf(stderr, "Weird %s:%d: There should be 72 bytes here.\n", __FILE__, __LINE__);
+	  g_stop_retreiving = -2;
 	  return ((void *)-1);
 	}
       pthread_mutex_lock(&g_lock);
@@ -86,6 +103,7 @@ void	*_pc_start_retrieving(void *data)
       pthread_mutex_unlock(&g_lock);
       if (g_stop_retreiving == -1)
 	g_stop_retreiving = 0;
+      usleep(100);
     }
   return ((void *)0);
 }
@@ -97,6 +115,8 @@ int	pc_start_retrieving(struct libusb_device_handle *devh)
   int	e;
 
   g_stop_retreiving = -1;
+  signal(SIGTERM, handle_sig);
+  signal(SIGINT, handle_sig);
   e = pthread_create(&th, NULL, _pc_start_retrieving, devh);
   if (e)
     {

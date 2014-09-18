@@ -5,7 +5,7 @@
 ** Login   <soules_k@epitech.net>
 ** 
 ** Started on  Thu Sep 18 01:21:28 2014 eax
-** Last update Thu Sep 18 01:30:33 2014 eax
+** Last update Thu Sep 18 02:55:03 2014 eax
 */
 
 #ifndef PARSING_H_
@@ -22,5 +22,6 @@ typedef struct
 
 void	print_fields(t_phantom_field *fields);
 int	raw_to_phantom_field(unsigned char *raw, t_phantom_field *data_out);
+short	id_to_val(t_phantom_field *f, short id, size_t size);
 
 #endif
