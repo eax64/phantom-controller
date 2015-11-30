@@ -7,3 +7,19 @@ The communication protocol between the DJI RC software and the controller was no
 With this little hack (still in early pre-alpha!)) it should be possible. :)
 
 
+## How to
+
+### Compile and launch the program
+```
+make
+sudo ./phantom-contoller
+```
+
+### Start a joystick reader
+```
+jstest /dev/input/jsX
+```
+or
+```
+jstest-gtk
+```
